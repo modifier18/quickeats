@@ -10,9 +10,15 @@ const initializeApp = async () => {
 };
 initializeApp();
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'];
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['*'];
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow server-to-server or tools
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS policy: origin not allowed'), false);
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -22,6 +28,10 @@ app.use('/api',require("./Routes/DisplayData"))
 app.use('/api',require("./Routes/OrderData"))
 app.get('/', (req, res) => {
   res.send('Hello World!')
+})
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', db: !!global.food_items && !!global.foodCategory })
 })
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
