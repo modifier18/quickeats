@@ -29,6 +29,11 @@ app.use('/api',require("./Routes/OrderData"))
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', dbLoaded: Array.isArray(global.food_items) && Array.isArray(global.foodCategory) })
+})
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
