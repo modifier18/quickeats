@@ -1,11 +1,14 @@
 const mongoose = require('mongoose');
+
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/QuickEats';
+
 async function connectDB() {
   try {
-    await mongoose.connect('mongodb://localhost:27017/QuickEats', {
+    await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    //console.log('Database connection successful');
+    console.log('Database connected successfully');
     const fetch_data = mongoose.connection.db.collection('food_items');
     try {
       const data = await fetch_data.find({}).toArray();
@@ -20,11 +23,6 @@ async function connectDB() {
       } catch (error) {
         
       }
-      // if (data.length === 0) {
-      //   console.log('No data found in the food_items collection');
-      // } else {
-      //   global.food_items=data;
-      // }
     } catch (err) {
       console.error('Error fetching data:', err);
     }
@@ -33,6 +31,8 @@ async function connectDB() {
     console.error('Database connection error:', err);
   }
 }
+
+module.exports = connectDB;
 
 connectDB();
 

@@ -1,14 +1,18 @@
 const express = require('express')
 const cors = require('cors');
 const app = express()
-const port = 4000
+const port = process.env.PORT || 4000
 const connectDB=require('./db')
 const path = require('path')
-async ()=>{
-  await connectDB;
-}
+
+const initializeApp = async () => {
+  await connectDB();
+};
+initializeApp();
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'];
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
