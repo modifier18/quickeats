@@ -5,8 +5,8 @@ import Card from "../components/Card";
 import Pizza from '../images/Pizza.jpg'
 import Biryani from '../images/biryani.jpg'
 import Paneer from '../images/paneertikka.jpg'
-import { toast, ToastContainer } from "react-toastify";
-export default function () {
+import { ToastContainer } from "react-toastify";
+export default function Home() {
   const [search, setSearch] = useState('')
   const [foodCat, setFoodCat] = useState([]);
   const [foodItems, setFoodItems] = useState([]);
