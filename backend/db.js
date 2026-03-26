@@ -9,22 +9,26 @@ async function connectDB() {
       useUnifiedTopology: true,
     });
     console.log('Database connected successfully');
+    global.food_items = [];
+    global.foodCategory = [];
+
     const fetch_data = mongoose.connection.db.collection('food_items');
     try {
       const data = await fetch_data.find({}).toArray();
-      const foodCategory=mongoose.connection.db.collection('food_category');
-      try {
-        const catData= await foodCategory.find({}).toArray();
-        if(catData.length===0) console.log('No Data')
-        else{
-            global.food_items=data;
-            global.foodCategory=catData;
-        }
-      } catch (error) {
-        
+      global.food_items = data || [];
+    } catch (err) {
+      console.error('Error fetching food_items:', err);
+    }
+
+    const foodCategory = mongoose.connection.db.collection('food_category');
+    try {
+      const catData = await foodCategory.find({}).toArray();
+      global.foodCategory = catData || [];
+      if (!catData || catData.length === 0) {
+        console.warn('No food_category data found');
       }
     } catch (err) {
-      console.error('Error fetching data:', err);
+      console.error('Error fetching food_category:', err);
     }
 
   } catch (err) {
