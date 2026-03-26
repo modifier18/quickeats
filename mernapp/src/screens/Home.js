@@ -10,17 +10,34 @@ export default function Home() {
   const [search, setSearch] = useState('')
   const [foodCat, setFoodCat] = useState([]);
   const [foodItems, setFoodItems] = useState([]);
+  const [loadError, setLoadError] = useState('');
+  const [loading, setLoading] = useState(false);
   const loadData = async () => {
+    setLoading(true);
+    setLoadError('');
     const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:4000";
-    let response = await fetch(`${apiUrl}/api/foodData`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    response = await response.json();
-    setFoodItems(response[0]);
-    setFoodCat(response[1]);
+    try {
+      let response = await fetch(`${apiUrl}/api/foodData`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      if (!Array.isArray(data) || data.length < 2) {
+        throw new Error(`Unexpected data from API: ${JSON.stringify(data)}`);
+      }
+      setFoodItems(data[0] || []);
+      setFoodCat(data[1] || []);
+    } catch (err) {
+      console.error('loadData error:', err);
+      setLoadError(err.message || 'Unknown error');
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => {
     loadData()
@@ -29,6 +46,13 @@ export default function Home() {
     <div>
       <div>
         <Navbar />
+      </div>
+      <div className="p-3 bg-light">
+        <small>API URL: {process.env.REACT_APP_API_URL || 'http://localhost:4000'}</small><br />
+        <small>Categories loaded: {foodCat.length}</small><br />
+        <small>Items loaded: {foodItems.length}</small><br />
+        {loading && <div className="text-info">Loading data...</div>}
+        {loadError && <div className="text-danger">Error: {loadError}</div>}
       </div>
       <div
         id="carouselExampleCaptions"
